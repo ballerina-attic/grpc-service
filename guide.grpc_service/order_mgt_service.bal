@@ -16,6 +16,7 @@
 
 import ballerina/grpc;
 
+// gRPC service endpoint definition
 endpoint grpc:Listener listener {
     host:"localhost",
     port:9090
@@ -23,7 +24,14 @@ endpoint grpc:Listener listener {
 
 // Order management is done using an in memory map.
 // Add some sample orders to 'orderMap' at startup.
-map<string> ordersMap;
+map<newOrder> ordersMap;
+
+// Type definition for an order
+type newOrder {
+    string id;
+    string name;
+    string description;
+};
 
 @Description {value:"gRPC service."}
 @grpc:serviceConfig
@@ -34,7 +42,8 @@ service order_mgt bind listener {
         string payload;
         // Find the requested order from the map.
         if (ordersMap.hasKey(orderId)) {
-            payload = ordersMap[orderId];
+            json orderDetails = check <json>ordersMap[orderId];
+            payload = orderDetails.toString();
         } else {
             payload = "Order : '" + orderId + "' cannot be found.";
         }
@@ -45,15 +54,12 @@ service order_mgt bind listener {
     }
 
     @Description {value:"gRPC method to create a new Order."}
-    addOrder(endpoint caller, string orderId, string orderReq) {
+    addOrder(endpoint caller, newOrder orderReq) {
         // Add the new order to the map.
-        ordersMap[orderId] = orderReq;
+        string orderId = orderReq.id;
+        ordersMap[orderReq.id] = orderReq;
         // Create response message.
         string payload = "Status : Order created; OrderID : " + orderId;
-
-        // Send 201 Created status code
-        string statusCode = "StatusCode : 201";
-        _ = caller->send(statusCode);
 
         // Send response to the caller.
         _ = caller->send(payload);
@@ -61,9 +67,10 @@ service order_mgt bind listener {
     }
 
     @Description {value:"gRPC method to update an existing Order."}
-    updateOrder(endpoint caller, string orderId, string updatedOrder) {
+    updateOrder(endpoint caller, newOrder updatedOrder) {
         string payload;
         // Find the order that needs to be updated.
+        string orderId = updatedOrder.id;
         if (ordersMap.hasKey(orderId)) {
             // Update the existing order.
             ordersMap[orderId] = updatedOrder;
