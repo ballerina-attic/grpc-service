@@ -34,7 +34,7 @@ type newOrder {
 };
 
 @Description {value:"gRPC service."}
-@grpc:serviceConfig
+@grpc:ServiceConfig
 service order_mgt bind listener {
 
     @Description {value:"gRPC method to find an order"}
