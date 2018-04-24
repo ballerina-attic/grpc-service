@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+service order_mgt {
+		rpc findOrder(google.protobuf.StringValue) returns (google.protobuf.StringValue);
+		rpc addOrder(orderInfo) returns (google.protobuf.StringValue);
+		rpc updateOrder(orderInfo) returns (google.protobuf.StringValue);
+		rpc cancelOrder(google.protobuf.StringValue) returns (google.protobuf.StringValue);
+}
+message orderInfo {
+	string id = 1;
+	string name = 2;
+	string description = 3;
+}
