@@ -181,7 +181,7 @@ Using ballerina we can also write a gRPC client to consume the methods we implem
 
 - Create a new directory using the following command to store the client and client stub files.
 ```
-   mkdir guide.grpc_client 
+   $mkdir guide.grpc_client 
 ```
 
 - Run the following command to autogenerate the client stub and a Ballerina gRPC client template. Here, `--output`is an optional parameter and the default value is the current working directory.
@@ -190,6 +190,8 @@ Using ballerina we can also write a gRPC client to consume the methods we implem
 ```
 
 - Now you should see two new files inside `guide.grpc_client` directory namely `order_mgt.sample.client.bal`, which is a sample gRPC client and `order_mgt.pb.bal`, which is the gRPC client stub.
+
+- Replace the content of the `order_mgt.sample.client.bal` with the business logic you need. For example, refer to the below implementation of a Ballerina gRPC client.
 
 ##### order_mgt.sample.client.bal
 ```ballerina
@@ -268,101 +270,79 @@ function main(string... args) {
 }
 ```
 
-- With that we've completed the development of OrderMgtService. 
+- With that we've completed the development of our 'order_mgt' service and gRPC client. 
 
 
 ## Testing 
 
-### Invoking the RESTful service 
+### Invoking the gRPC service 
 
-You can run the RESTful service that you developed above, in your local environment. Open your terminal and navigate to `<SAMPLE_ROOT_DIRECTORY>/guide.restful_service` and execute the following command.
+You can run the gRPC service that you developed above, in your local environment. Open your terminal, navigate to sample root directory and execute the following command.
 ```
-$ballerina run restful_service
-```
-NOTE: You need to have the Ballerina installed in you local machine to run the Ballerina service.  
-
-You can test the functionality of the OrderMgt RESTFul service by sending HTTP request for each order management operation. For example, we have used the curl commands to test each operation of OrderMgtService as follows. 
-
-**Create Order** 
-```
-curl -v -X POST -d \
-'{ "Order": { "ID": "100500", "Name": "XYZ", "Description": "Sample order."}}' \
-"http://localhost:9090/ordermgt/order" -H "Content-Type:application/json"
-
-Output :  
-< HTTP/1.1 201 Created
-< Content-Type: application/json
-< Location: http://localhost:9090/ordermgt/order/100500
-< Transfer-Encoding: chunked
-< Server: wso2-http-transport
-
-{"status":"Order Created.","orderId":"100500"} 
+   $ballerina run guide.grpc_service
 ```
 
-**Retrieve Order** 
-```
-curl "http://localhost:9090/ordermgt/order/100500" 
+You can test the functionality of the 'order_mgt' gRPC service by running the gRPC client application implemented above. Use the below command to run the gRPC client. 
 
-Output : 
-{"Order":{"ID":"100500","Name":"XYZ","Description":"Sample order."}}
+```
+   $ballerina run guide.grpc_client
 ```
 
-**Update Order** 
+You will see log statements similar to below printed in your terminal as the response.
 ```
-curl -X PUT -d '{ "Order": {"Name": "XYZ", "Description": "Updated order."}}' \
-"http://localhost:9090/ordermgt/order/100500" -H "Content-Type:application/json"
+   INFO  [guide.grpc_client] - ---------------------------Create a new order--------------------------- 
+   INFO  [guide.grpc_client] - Response - Status : Order created; OrderID : 100500
 
-Output: 
-{"Order":{"ID":"100500","Name":"XYZ","Description":"Updated order."}}
-```
+   INFO  [guide.grpc_client] - ------------------------Update an existing order------------------------ 
+   INFO  [guide.grpc_client] - Response - Order : '100500' updated.
 
-**Cancel Order** 
-```
-curl -X DELETE "http://localhost:9090/ordermgt/order/100500"
+   INFO  [guide.grpc_client] - -------------------------Find an existing order------------------------- 
+   INFO  [guide.grpc_client] - Response - {"id":"100500","name":"XYZ","description":"Updated order."}
 
-Output:
-"Order : 100500 removed."
+   INFO  [guide.grpc_client] - -----------------------------Cancel an order---------------------------- 
+   INFO  [guide.grpc_client] - Response - Order : '100500' removed.
 ```
 
 ### Writing unit tests 
 
-In Ballerina, the unit test cases should be in the same package inside a folder named as 'test'. The naming convention should be as follows,
+In Ballerina, the unit test cases should be in the same package inside a folder named as 'tests'.  When writing the test functions the below convention should be followed.
+* Test functions should be annotated with `@test:Config`. See the below example.
+```ballerina
+   @test:Config
+   function testAddOrder() {
+```
+  
+This guide contains unit test cases for each method available in the 'order_mgt_service' implemented above. 'tests' folder also contains a copy of the client stub file that we generated using protobuf tool. Note that without this file you cannot run the test file in this guide. 
 
-* Test functions should contain test prefix.
-  * e.g.: testResourceAddOrder()
-
-This guide contains unit test cases for each resource available in the 'order_mgt_service.bal'.
-
-To run the unit tests, go to the sample `guide.restful_service` directory and run the following command.
-```bash
-   $ballerina test
+To run the unit tests, navigate to the sample root directory and run the following command.
+```
+   $ballerina test guide.grpc_service
 ```
 
-To check the implementation of the test file, refer to the [order_mgt_service_test.bal](https://github.com/ballerina-guides/restful-service/blob/master/guide.restful_service/restful_service/test/order_mgt_service_test.bal).
-
+To check the implementation of the test file, refer to the [order_mgt_service_test.bal](https://github.com/ballerina-guides/grpc-service/blob/master/guide.grpc_service/tests/order_mgt_service_test.bal).
 
 ## Deployment
 
-Once you are done with the development, you can deploy the service using any of the methods that we listed below. 
+Once you are done with the development, you can deploy the gRPC service implemented above. 
 
 ### Deploying locally
 
-- As the first step you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the directory in which the service we developed above located and it will create an executable binary out of that. Navigate to the `<SAMPLE_ROOT>/guide.restful_service/` folder and run the following command. 
+- As the first step you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the directory in which the service we developed above located and it will create an executable binary out of that. Navigate to the sample root directory and run the following command. 
 
 ```
-$ballerina build restful_service
+   $ballerina build guide.grpc_service
 ```
 
-- Once the restful_service.balx is created inside the target folder, you can run that with the following command. 
+- Once the guide.grpc_service.balx is created inside the target folder, you can run that with the following command. 
 
 ```
-$ballerina run target/restful_service.balx
+   $ballerina run target/guide.grpc_service.balx
 ```
 
 - The successful execution of the service should show us the following output. 
 ```
-$ ballerina run target/restful_service.balx 
+   $ballerina run target/guide.grpc_service.balx 
 
-ballerina: deploying service(s) in 'target/restful_service.balx'
-ballerina: started HTTP/WS server connector 0.0.0.0:9090
+   ballerina: deploying service(s) in 'target/guide.grpc_service.balx'
+   ballerina: started gRPC server connector on port 9090
 ```
