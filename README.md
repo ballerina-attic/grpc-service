@@ -1,5 +1,7 @@
 # gRPC Service
 
+gRPC is a modern, open source remote procedure call (RPC) framework widely used in distributed computing, which enables client and server applications to communicate transparently. In gRPC, a client application can directly call methods on a server application on a different machine as if it was a local object. On the server side, the server implements and runs a gRPC server to handle client calls; whereas, on the client side, the client has a stub that provides the same methods as the server.
+
 > In this guide you will learn about building a comprehensive gRPC service using Ballerina. 
 
 The following are the sections available in this guide.
@@ -11,16 +13,16 @@ The following are the sections available in this guide.
 - [Deployment](#deployment)
 
 ## What you’ll build 
-To understanding how you can build a RESTful web service using Ballerina, let’s consider a real world use case of an order management scenario of an online retail application. 
-We can model the order management scenario as a RESTful web service; 'OrderMgtService',  which accepts different HTTP request for order management tasks such as order creation, retrieval, updating and deletion.
-The following figure illustrates all the required functionalities of the OrderMgt RESTful web service that we need to build. 
+To understanding how you can build a gRPC service using Ballerina, let’s consider a real world use case of an order management scenario of an online retail application. 
+We can model the order management scenario as a gRPC service; 'order_mgt_service',  which accepts different proto requests for order management tasks such as order creation, retrieval, updating and deletion.
+The following figure illustrates all the required functionalities of the order_mgt gRPC service that we need to build. 
 
 ![gRPC Service](images/grpc_service.png)
 
-- **Create Order** : To place a new order you can use the HTTP POST message that contains the order details, which is sent to the URL `http://xyz.retail.com/order`.The response from the service contains an HTTP 201 Created message with the location header pointing to the newly created resource `http://xyz.retail.com/order/123456`. 
-- **Retrieve Order** : You can retrieve the order details by sending an HTTP GET request to the appropriate URL which includes the order ID.`http://xyz.retail.com/order/<orderId>` 
-- **Update Order** : You can update an existing order by sending a HTTP PUT request with the content for the updated order. 
-- **Delete Order** : An existing order can be deleted by sending a HTTP DELETE request to the specific URL`http://xyz.retail.com/order/<orderId>`. 
+- **Create Order** : To place a new order, a gRPC client can send a proto request to the `addOrder` procedure with order details.  
+- **Retrieve Order** : A gRPC client can call the `findOrder` procedure with orderID to retrive an order.
+- **Update Order** : To update an existing order, a client needs make a procedure call to the `updateOrder` method with the update details.  
+- **Cancel Order** : An existing order can be deleted by sending a proto request to the `cancelOrder` procedure with orderID. 
 
 ## Prerequisites
  
@@ -34,7 +36,7 @@ The following figure illustrates all the required functionalities of the OrderMg
 
 ## Developing the service 
 
-> If you want to skip the basics, you can download the git repo and directly move to "Testing" section by skipping "Developing" section.
+> If you want to skip the basics, you can download the git repo and directly move to the [Testing](#testing) section by skipping this section.
 
 ### Create the project structure
 
@@ -44,34 +46,35 @@ Ballerina is a complete programming language that can have any custom project st
 grpc-service
   ├── guide.grpc_service
   │   └── order_mgt_service.bal
-  └── guide.grpc_client
-      ├── order_mgt.pb.bal
-      └── order_mgt.sample.client.bal
+  └── tests
+      ├── order_mgt_service_test.bal          
+      └──order_mgt.pb.bal
 ```
 You can create the above Ballerina project using Ballerina project initializing toolkit.
 
-- First, create a new directory in your local machine as `restful-service` and navigate to the directory using terminal. 
+- First, create a new directory in your local machine as `grpc-service` and navigate to that directory using terminal. 
 - Then enter the following inputs to the Ballerina project initializing toolkit.
 ```bash
-restful-service$ ballerina init -i
+$ballerina init -i
+
 Create Ballerina.toml [yes/y, no/n]: (y) y
-Organization name: (username) restful-service
+Organization name: (username) grpc-service
 Version: (0.0.1) 
 Ballerina source [service/s, main/m]: (s) s
-Package for the service : (no package) guide.restful_service
+Package for the service : (no package) guide.grpc_service
 Ballerina source [service/s, main/m, finish/f]: (f) f
 
 Ballerina project initialized
 ```
 
-- Once you initialize your Ballerina project, you can change the names of the file to match with our guide project file names.
+- Once you initialize your Ballerina project, you can change the names of the generated files to match with our guide project filenames.
   
 ### Implement the gRPC service
 
-- We can get started with a Ballerina service; 'OrderMgtService', which is the RESTful service that serves the order management request. OrderMgtService can have multiple resources and each resource is dedicated for a specific order management functionality.
+Let's get started with the implementation of 'order_mgt_service', which is a gRPC service that handles order management. This service can have dedicated procedures for each specific order management functionality.
 
-- You can add the content to your Ballerina service as shown below. In that code segment you can find the implementation of the service and resource skeletons of 'OrderMgtService'. 
-For each order management operation, there is a dedicated resource and inside each resource we can implement the order management operation logic. 
+Implementation of this gRPC service is attached below. Inline comments added for better understanding.
+
 
 ##### order_mgt_service.bal
 ```ballerina
@@ -95,7 +98,7 @@ type newOrder {
 };
 
 @Description {value:"gRPC service."}
-@grpc:serviceConfig
+@grpc:ServiceConfig
 service order_mgt bind listener {
 
     @Description {value:"gRPC method to find an order"}
@@ -163,8 +166,30 @@ service order_mgt bind listener {
 }
 ```
 
-- You can implement the business logic of each resources as per your requirements. For simplicity we have used an in-memory map to keep all the order details. You can find the full source code of the OrderMgtService below. In addition to the order processing logic, we have also manipulated some HTTP status codes and headers whenever required.  
+You can implement the business logic of each resources as per your requirements. For simplicity we have used an in-memory map to keep all the order details. As shown in the above code, first you need to import the `ballerina/grpc` and then define a `grpc:Listener` endpoint to create a gRPC service. 
 
+
+### Implement a gRPC client
+
+Using ballerina we can also write a gRPC client to consume the methods we implemented in the gRPC service. We can use the protobuf tool to automatically generate a client template and the client stub needed.
+
+- First we need to run the gRPC service we implemented above to generate a .proto definition for the 'order_mgt' gRPC service. Navigate to the project root directory and run the following command to start the 'order_mgt_service'.
+
+```bash
+   $ballerina run guide.grpc_service/
+```
+
+- Create a new directory using the following command to store the client and client stub files.
+```
+   mkdir guide.grpc_client 
+```
+
+- Run the following command to autogenerate the client stub and a Ballerina gRPC client template. Here, `--output`is an optional parameter and the default value is the current working directory.
+```
+   ballerina grpc--input order_mgt.proto --output guide.grpc_client/
+```
+
+- Now you should see two new files inside `guide.grpc_client` directory namely `order_mgt.sample.client.bal`, which is a sample gRPC client and `order_mgt.pb.bal`, which is the gRPC client stub.
 
 ##### order_mgt.sample.client.bal
 ```ballerina
@@ -340,169 +365,4 @@ $ ballerina run target/restful_service.balx
 
 ballerina: deploying service(s) in 'target/restful_service.balx'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
-```
-### Deploying on Docker
-
-
-You can run the service that we developed above as a docker container. As Ballerina platform offers native support for running ballerina programs on 
-containers, you just need to put the corresponding docker annotations on your service code. 
-
-- In our OrderMgtService, we need to import  `` import ballerinax/docker; `` and use the annotation `` @docker:Config `` as shown below to enable docker image generation during the build time. 
-
-##### order_mgt_service.bal
-```ballerina
-package restful_service;
-
-import ballerina/http;
-import ballerinax/docker;
-
-@docker:Config {
-    registry:"ballerina.guides.io",
-    name:"restful_service",
-    tag:"v1.0"
-}
-
-@docker:Expose{}
-endpoint http:Listener listener {
-    port:9090
-};
-
-// Order management is done using an in memory map.
-// Add some sample orders to 'orderMap' at startup.
-map<json> ordersMap;
-
-@Description {value:"RESTful service."}
-@http:ServiceConfig {basePath:"/ordermgt"}
-service<http:Service> order_mgt bind listener {
-``` 
-
-- Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
-This will also create the corresponding docker image using the docker annotations that you have configured above. Navigate to the `<SAMPLE_ROOT>/guide.restful_service/` folder and run the following command.  
-  
-```
-   $ballerina build restful_service
-
-   Run following command to start docker container: 
-   docker run -d -p 9090:9090 ballerina.guides.io/restful_service:v1.0
-```
-
-- Once you successfully build the docker image, you can run it with the `` docker run`` command that is shown in the previous step.  
-
-```   
-   docker run -d -p 9090:9090 ballerina.guides.io/restful_service:v1.0
-```
-
-  Here we run the docker image with flag`` -p <host_port>:<container_port>`` so that we  use  the host port 9090 and the container port 9090. Therefore you can access the service through the host port. 
-
-- Verify docker container is running with the use of `` $ docker ps``. The status of the docker container should be shown as 'Up'. 
-- You can access the service using the same curl commands that we've used above. 
- 
-```
-   curl -v -X POST -d '{ "Order": { "ID": "100500", "Name": "XYZ", "Description": "Sample \
-   order."}}' "http://localhost:9090/ordermgt/order" -H "Content-Type:application/json"    
-```
-
-### Deploying on Kubernetes
-
-- You can run the service that we developed above, on Kubernetes. The Ballerina language offers native support for running a ballerina programs on Kubernetes, 
-with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the docker images. 
-So you don't need to explicitly create docker images prior to deploying it on Kubernetes.   
-
-- We need to import `` import ballerinax/kubernetes; `` and use `` @kubernetes `` annotations as shown below to enable kubernetes deployment for the service we developed above. 
-
-##### order_mgt_service.bal
-
-```ballerina
-package restful_service;
-
-import ballerina/http;
-import ballerinax/kubernetes;
-
-@kubernetes:Ingress {
-    hostname:"ballerina.guides.io",
-    name:"ballerina-guides-restful-service",
-    path:"/"
-}
-
-@kubernetes:Service {
-    serviceType:"NodePort",
-    name:"ballerina-guides-restful-service"
-}
-
-@kubernetes:Deployment {
-    image:"ballerina.guides.io/restful_service:v1.0",
-    name:"ballerina-guides-restful-service"
-}
-
-endpoint http:Listener listener {
-    port:9090
-};
-
-// Order management is done using an in memory map.
-// Add some sample orders to 'orderMap' at startup.
-map<json> ordersMap;
-
-@Description {value:"RESTful service."}
-@http:ServiceConfig {basePath:"/ordermgt"}
-service<http:Service> order_mgt bind listener {    
-``` 
-
-- Here we have used ``  @kubernetes:Deployment `` to specify the docker image name which will be created as part of building this service. 
-- We have also specified `` @kubernetes:Service {} `` so that it will create a Kubernetes service which will expose the Ballerina service that is running on a Pod.  
-- In addition we have used `` @kubernetes:Ingress `` which is the external interface to access your service (with path `` /`` and host name ``ballerina.guides.io``)
-
-- Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
-This will also create the corresponding docker image and the Kubernetes artifacts using the Kubernetes annotations that you have configured above.
-  
-```
-   $ballerina build restful_service
-  
-   Run following command to deploy kubernetes artifacts:  
-   kubectl apply -f ./target/restful_service/kubernetes
-```
-
-- You can verify that the docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker images ``. 
-- Also the Kubernetes artifacts related our service, will be generated in `` ./target/restful_service/kubernetes``. 
-- Now you can create the Kubernetes deployment using:
-
-```
-   $ kubectl apply -f ./target/restful_service/kubernetes 
- 
-   deployment.extensions "ballerina-guides-restful-service" created
-   ingress.extensions "ballerina-guides-restful-service" created
-   service "ballerina-guides-restful-service" created
-```
-
-- You can verify Kubernetes deployment, service and ingress are running properly, by using following Kubernetes commands.
-
-```
-   $kubectl get service
-   $kubectl get deploy
-   $kubectl get pods
-   $kubectl get ingress
-```
-
-- If everything is successfully deployed, you can invoke the service either via Node port or ingress. 
-
-Node Port:
- 
-```
-curl -v -X POST -d \
-'{ "Order": { "ID": "100500", "Name": "XYZ", "Description": "Sample order."}}' \
-"http://localhost:<Node_Port>/ordermgt/order" -H "Content-Type:application/json"  
-```
-
-Ingress:
-
-Add `/etc/hosts` entry to match hostname. 
-``` 
-127.0.0.1 ballerina.guides.io
-```
-
-Access the service 
-
-``` 
-curl -v -X POST -d \
-'{ "Order": { "ID": "100500", "Name": "XYZ", "Description": "Sample order."}}' \
-"http://ballerina.guides.io/ordermgt/order" -H "Content-Type:application/json" 
 ```
