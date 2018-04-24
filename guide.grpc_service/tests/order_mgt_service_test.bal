@@ -35,7 +35,7 @@ endpoint order_mgtBlockingClient order_mgtBlockingEp {
 // Function to test 'addOrder'.
 function testAddOrder() {
     // Create an order
-    newOrder orderReq = {id: "100500", name: "XYZ", description: "Sample order."};
+    orderInfo orderReq = {id: "100500", name: "XYZ", description: "Sample order."};
     var addResponse = order_mgtBlockingEp->addOrder(orderReq);
     match addResponse {
         (string, grpc:Headers) payload => {
@@ -57,7 +57,7 @@ function testAddOrder() {
 // Function to test 'updateOrder'.
 function testUpdateOrder() {
     // Update an order
-    newOrder updateReq = {id: "100500", name: "XYZ", description: "Updated order."};
+    orderInfo updateReq = {id: "100500", name: "XYZ", description: "Updated order."};
     var updateResponse = order_mgtBlockingEp->updateOrder(updateReq);
     match updateResponse {
         (string, grpc:Headers) payload => {

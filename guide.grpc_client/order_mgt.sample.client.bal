@@ -26,7 +26,7 @@ function main(string... args) {
 
     // Create an order
     log:printInfo("---------------------------Create a new order---------------------------");
-    newOrder orderReq = {id:"100500", name:"XYZ", description:"Sample order."};
+    orderInfo orderReq = {id:"100500", name:"XYZ", description:"Sample order."};
     var addResponse = order_mgtBlockingEp->addOrder(orderReq);
     match addResponse {
         (string, grpc:Headers) payload => {
@@ -42,7 +42,7 @@ function main(string... args) {
 
     // Update an order
     log:printInfo("------------------------Update an existing order------------------------");
-    newOrder updateReq = {id:"100500", name:"XYZ", description:"Updated order."};
+    orderInfo updateReq = {id:"100500", name:"XYZ", description:"Updated order."};
     var updateResponse = order_mgtBlockingEp->updateOrder(updateReq);
     match updateResponse {
         (string, grpc:Headers) payload => {

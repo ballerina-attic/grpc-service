@@ -33,7 +33,7 @@ public type order_mgtBlockingStub object {
         }
     }
 
-    function addOrder (newOrder req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function addOrder (orderInfo req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
 
         var unionResp = self.stub.blockingExecute("order_mgt/addOrder", req, ...headers);
         match unionResp {
@@ -49,7 +49,7 @@ public type order_mgtBlockingStub object {
         }
     }
 
-    function updateOrder (newOrder req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function updateOrder (orderInfo req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
 
         var unionResp = self.stub.blockingExecute("order_mgt/updateOrder", req, ...headers);
         match unionResp {
@@ -101,11 +101,11 @@ public type order_mgtStub object {
         return self.stub.nonBlockingExecute("order_mgt/findOrder", req, listener, ...headers);
     }
 
-    function addOrder (newOrder req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function addOrder (orderInfo req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("order_mgt/addOrder", req, listener, ...headers);
     }
 
-    function updateOrder (newOrder req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function updateOrder (orderInfo req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("order_mgt/updateOrder", req, listener, ...headers);
     }
 
@@ -164,7 +164,7 @@ public type order_mgtClient object {
 };
 
 // Type definition.
-type newOrder {
+type orderInfo {
     string id;
     string name;
     string description;

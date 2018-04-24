@@ -1,5 +1,5 @@
 // NOTE: This is an auto generated client stub which is used to connect to gRPC server.
-// Type 'newOrder' has been renamed as 'typeNewOrder' to include this file for test cases
+// Type 'orderInfo' has been removed as it's already defined in the service, which is in the same package
 import ballerina/grpc;
 import ballerina/io;
 
@@ -33,7 +33,7 @@ public type order_mgtBlockingStub object {
         }
     }
 
-    function addOrder (newOrder req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function addOrder (orderInfo req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
 
         var unionResp = self.stub.blockingExecute("order_mgt/addOrder", req, ...headers);
         match unionResp {
@@ -49,7 +49,7 @@ public type order_mgtBlockingStub object {
         }
     }
 
-    function updateOrder (newOrder req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
+    function updateOrder (orderInfo req, grpc:Headers... headers) returns ((string, grpc:Headers)|error) {
 
         var unionResp = self.stub.blockingExecute("order_mgt/updateOrder", req, ...headers);
         match unionResp {
@@ -101,11 +101,11 @@ public type order_mgtStub object {
         return self.stub.nonBlockingExecute("order_mgt/findOrder", req, listener, ...headers);
     }
 
-    function addOrder (newOrder req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function addOrder (orderInfo req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("order_mgt/addOrder", req, listener, ...headers);
     }
 
-    function updateOrder (newOrder req, typedesc listener, grpc:Headers... headers) returns (error?) {
+    function updateOrder (orderInfo req, typedesc listener, grpc:Headers... headers) returns (error?) {
         return self.stub.nonBlockingExecute("order_mgt/updateOrder", req, listener, ...headers);
     }
 
@@ -161,14 +161,6 @@ public type order_mgtClient object {
     public function getCallerActions () returns (order_mgtStub) {
         return self.stub;
     }
-};
-
-// Type definition.
-type typeNewOrder {
-    string id;
-    string name;
-    string description;
-
 };
 
 @final string DESCRIPTOR_KEY = "order_mgt.proto";

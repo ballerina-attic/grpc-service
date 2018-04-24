@@ -24,20 +24,20 @@ endpoint grpc:Listener listener {
 
 // Order management is done using an in memory map.
 // Add some sample orders to 'orderMap' at startup.
-map<newOrder> ordersMap;
+map<orderInfo> ordersMap;
 
 // Type definition for an order
-type newOrder {
+type orderInfo {
     string id;
     string name;
     string description;
 };
 
-@Description {value:"gRPC service."}
+documentation {value:"gRPC service."}
 @grpc:ServiceConfig
 service order_mgt bind listener {
 
-    @Description {value:"gRPC method to find an order"}
+    documentation {value:"gRPC method to find an order"}
     findOrder(endpoint caller, string orderId) {
         string payload;
         // Find the requested order from the map.
@@ -53,8 +53,8 @@ service order_mgt bind listener {
         _ = caller->complete();
     }
 
-    @Description {value:"gRPC method to create a new Order."}
-    addOrder(endpoint caller, newOrder orderReq) {
+    documentation {value:"gRPC method to create a new Order."}
+    addOrder(endpoint caller, orderInfo orderReq) {
         // Add the new order to the map.
         string orderId = orderReq.id;
         ordersMap[orderReq.id] = orderReq;
@@ -66,8 +66,8 @@ service order_mgt bind listener {
         _ = caller->complete();
     }
 
-    @Description {value:"gRPC method to update an existing Order."}
-    updateOrder(endpoint caller, newOrder updatedOrder) {
+    documentation {value:"gRPC method to update an existing Order."}
+    updateOrder(endpoint caller, orderInfo updatedOrder) {
         string payload;
         // Find the order that needs to be updated.
         string orderId = updatedOrder.id;
@@ -84,7 +84,7 @@ service order_mgt bind listener {
         _ = caller->complete();
     }
 
-    @Description {value:"gRPC method to delete an existing Order."}
+    documentation {value:"gRPC method to delete an existing Order."}
     cancelOrder(endpoint caller, string orderId) {
         string payload;
         if (ordersMap.hasKey(orderId)) {
