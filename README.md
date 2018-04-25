@@ -17,7 +17,7 @@ To understanding how you can build a gRPC service using Ballerina, let’s consi
 We can model the order management scenario as a gRPC service; 'order_mgt_service',  which accepts different proto requests for order management tasks such as order creation, retrieval, updating and deletion.
 The following figure illustrates all the required functionalities of the order_mgt gRPC service that we need to build. 
 
-![gRPC Service](images/grpc_service.png)
+![gRPC Service](images/grpc_service.svg)
 
 - **Create Order** : To place a new order, a gRPC client can send a proto request to the `addOrder` procedure with order details.  
 - **Retrieve Order** : A gRPC client can call the `findOrder` procedure with orderID to retrive an order.
