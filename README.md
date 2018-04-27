@@ -2,7 +2,7 @@
 
 gRPC is a modern, open source remote procedure call (RPC) framework that is widely used in distributed computing. It enables client and server applications to communicate transparently. In gRPC, a client application can directly call methods of a server application that is on a different machine as if it was a local object. On the server side, the server implements and runs a gRPC server to handle client calls. On the client side, the client has a stub that provides the same methods as the server.
 
-> In this guide you learn to build a comprehensive gRPC service using Ballerina. 
+> In this guide, you learn to build a comprehensive gRPC service using Ballerina. 
 
 This guide contains the following sections.
 
