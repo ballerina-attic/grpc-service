@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.org/pranavan15/grpc-service.svg?branch=master)](https://travis-ci.org/pranavan15/grpc-service)
 
 # gRPC Service
 
