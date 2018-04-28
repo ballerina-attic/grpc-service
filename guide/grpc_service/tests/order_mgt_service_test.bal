@@ -19,15 +19,15 @@ import ballerina/test;
 
 // Unit tests for the gRPC service implemented
 
-@test:BeforeSuite
-function beforeFunc() {
-    // Start the 'order_mgt' gRPC service before running the test.
-    _ = test:startServices("guide.grpc_service");
-}
+//@test:BeforeSuite
+//function beforeFunc() {
+//    // Start the 'orderMgt' gRPC service before running the test.
+//    _ = test:startServices("grpc_service");
+//}
 
 // Client endpoint configuration
-endpoint order_mgtBlockingClient order_mgtBlockingEp {
-    url: "http://localhost:9090"
+endpoint orderMgtBlockingClient orderMgtBlockingEp {
+    url:"http://localhost:9090"
 };
 
 
@@ -36,7 +36,7 @@ endpoint order_mgtBlockingClient order_mgtBlockingEp {
 function testAddOrder() {
     // Create an order
     orderInfo orderReq = {id: "100500", name: "XYZ", description: "Sample order."};
-    var addResponse = order_mgtBlockingEp->addOrder(orderReq);
+    var addResponse = orderMgtBlockingEp->addOrder(orderReq);
     match addResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -58,7 +58,7 @@ function testAddOrder() {
 function testUpdateOrder() {
     // Update an order
     orderInfo updateReq = {id: "100500", name: "XYZ", description: "Updated order."};
-    var updateResponse = order_mgtBlockingEp->updateOrder(updateReq);
+    var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
     match updateResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -80,7 +80,7 @@ function testUpdateOrder() {
 // Function to test 'findOrder'.
 function testFindOrder() {
     // Find an order
-    var findResponse = order_mgtBlockingEp->findOrder("100500");
+    var findResponse = orderMgtBlockingEp->findOrder("100500");
     match findResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -100,7 +100,7 @@ function testFindOrder() {
 // Function to test 'cancelOrder'.
 function testCancelOrder() {
     // Cancel an order
-    var cancelResponse = order_mgtBlockingEp->cancelOrder("100500");
+    var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
     match cancelResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -115,8 +115,8 @@ function testCancelOrder() {
     }
 }
 
-@test:AfterSuite
-function afterFunc() {
-    // Stop the 'order_mgt' gRPC service after running the test.
-    test:stopServices("guide.grpc_service");
-}
+//@test:AfterSuite
+//function afterFunc() {
+//    // Stop the 'orderMgt' gRPC service after running the test.
+//    test:stopServices("grpc_service");
+//}

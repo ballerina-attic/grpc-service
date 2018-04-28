@@ -1,6 +1,7 @@
 syntax = "proto3";
+package grpc_service;
 import "google/protobuf/wrappers.proto";
-service order_mgt {
+service orderMgt {
 		rpc findOrder(google.protobuf.StringValue) returns (google.protobuf.StringValue);
 		rpc addOrder(orderInfo) returns (google.protobuf.StringValue);
 		rpc updateOrder(orderInfo) returns (google.protobuf.StringValue);
