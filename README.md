@@ -26,15 +26,15 @@ The following figure illustrates all the functionalities of the order_mgt gRPC s
 
 ## Prerequisites
  
-- JDK 1.8 or later
-- [Ballerina Distribution](https://github.com/ballerina-lang/ballerina/blob/master/docs/quick-tour.md)
+- [Ballerina Distribution](https://ballerina.io/learn/getting-started/)
 - A Text Editor or an IDE 
 
 ### Optional requirements
 - Ballerina IDE plugins ([IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina), [VSCode](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina), [Atom](https://atom.io/packages/language-ballerina))
 - [Docker](https://docs.docker.com/engine/installation/)
+- [Kubernetes](https://kubernetes.io/docs/setup/)
 
-## Developing the service 
+## Implementation
 
 > If you want to skip the basics, download the git repository and move directly to the [Testing](#testing) section.
 
@@ -44,32 +44,22 @@ Ballerina is a complete programming language that supports custom project struct
 
 ```
 grpc-service
-  ├── grpc_service
-  │   └── order_mgt_service.bal
-  └── tests
-      ├── order_mgt_service_test.bal          
-      └── orderMgt_pb.bal
+  └── guide
+       ├── grpc_service
+       │    └── order_mgt_service.bal
+       └── tests
+            ├── order_mgt_service_test.bal          
+            └── orderMgt_pb.bal
 ```
-You can create the Ballerina project shown above using a Ballerina project initializing toolkit.
 
-- First, create a new directory on your local machine named `grpc-service` and navigate to that directory via the terminal. 
-- Enter the following inputs to the Ballerina project initializing toolkit.
+- Create the above directories in your local machine and also create empty `.bal` files.
+
+- Then open the terminal and navigate to `grpc-service/guide` and run Ballerina project initializing toolkit.
 ```bash
-$ballerina init -i
-
-Create Ballerina.toml [yes/y, no/n]: (y) y
-Organization name: (username) grpc-service
-Version: (0.0.1) 
-Ballerina source [service/s, main/m]: (s) s
-Package for the service : (no package) grpc_service
-Ballerina source [service/s, main/m, finish/f]: (f) f
-
-Ballerina project initialized
+   $ ballerina init
 ```
 
-- Once you initialize the Ballerina project, change the names of the generated files so that it matches the file names used in this guide.
-  
-### Implement the gRPC service
+### Developing the gRPC service
 
 Let's get started with the implementation of the `order_mgt_service`, which is a gRPC service that handles order management. This service can have dedicated procedures for each order management functionality.
 
@@ -166,19 +156,21 @@ service orderMgt bind listener {
 }
 ```
 
-You can implement the business logic of each resource. For simplicity, we use an in-memory map to record all the 
-order details. As shown in the above code, to create a gRPC service you need to import the `ballerina/grpc` and define a `grpc:Listener` endpoint.  
+You can implement the business logic of each resource as per your requirements. For simplicity, we use an in-memory 
+map to record all the order details. As shown in the above code, to create a gRPC service you need to import the 
+`ballerina/grpc` and define a `grpc:Listener` endpoint.  
 
 ### Implement a gRPC client
 
-Using ballerina you can also write a gRPC client to consume the methods implemented in the gRPC service. You can use 
+You can also write a gRPC client in Ballerina to consume the methods implemented in the gRPC service. You can use 
 the protobuf tool to automatically generate a client template and the client stub.
 
-- First, you need to run the gRPC service, which was implemented above, to generate a `.proto` definition of the 
-`orderMgt` gRPC service. Navigate to the project root directory and run the following command to start the `order_mgt_service`.
+- First, you need to build the gRPC service implemented above, to generate a `.proto` definition of the 
+`orderMgt` gRPC service. Navigate to `grpc-service/guide` and run the following command. This will generate a proto
+ definition named `orderMgt.proto` inside `./target/grpc`.
 
 ```bash
-   $ ballerina run grpc_service/
+   $ ballerina build grpc_service/
 ```
 
 - Create a new directory using the following command to store the client and client stub files.
@@ -186,7 +178,7 @@ the protobuf tool to automatically generate a client template and the client stu
    $ mkdir grpc_client 
 ```
 
-- Run the following command to autogenerate the client stub and a Ballerina gRPC client template. Here, `--output`is an optional parameter and the default value is the current working directory.
+- Run the following command to auto-generate the client stub and a Ballerina gRPC client template. 
 ```bash
    $ ballerina grpc --input target/grpc/orderMgt.proto --output grpc_client
 ```
@@ -194,7 +186,8 @@ the protobuf tool to automatically generate a client template and the client stu
 - Now, you should see two new files inside the `guide/grpc_client` directory namely `orderMgt_sample_client.bal`, 
 which is a sample gRPC client and `orderMgt_pb.bal`, which is the gRPC client stub.
 
-- Replace the content of the `orderMgt_sample_client.bal` with the business logic you need. For example, refer to the below implementation of a Ballerina gRPC client.
+- Replace the content of the `orderMgt_sample_client.bal` file with the business logic you need. For example, refer to 
+the below implementation.
 
 ##### orderMgt_sample_client.bal
 ```ballerina
