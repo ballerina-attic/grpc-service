@@ -41,5 +41,5 @@ script:
 - ballerina init
 
 # Run tests
-ballerina run grpc_service & ballerina test
+- ballerina run grpc_service & ballerina test
 
