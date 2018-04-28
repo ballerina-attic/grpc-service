@@ -491,7 +491,7 @@ Node Port:
 
 Change the value of the `url` field of gRPC client endpoint to `http://localhost:<Node_Port>` in the `orderMgt_sample_client.bal` file and run it using the following command.        
 ```bash
-   $ ballerina run grpc_client     
+$ ballerina run grpc_client     
 ```
 
 Ingress:
@@ -503,7 +503,7 @@ Add `/etc/hosts` entry to match hostname.
 
 Change the value of the `url` field of gRPC client endpoint to `http://ballerina.guides.io` in the `orderMgt_sample_client.bal` file and run it using the following command.        
 ```bash 
-   $ ballerina run grpc_client
+$ ballerina run grpc_client
 ```
 
 ## Observability 
