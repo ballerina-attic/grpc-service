@@ -489,21 +489,21 @@ service orderMgt bind listener {
 
 Node Port:
 
-Change the value of the `url` field of gRPC client endpoint to `http://localhost:<Node_Port>` in the `orderMgt_sample_client.bal` file and run it using the following command.        
+First, change the value of the `url` field of gRPC client endpoint to `http://localhost:<Node_Port>` in the `orderMgt_sample_client.bal` file, and then run it using the following command.        
 ```bash
-$ ballerina run grpc_client     
+   $ ballerina run grpc_client     
 ```
 
 Ingress:
 
 Add `/etc/hosts` entry to match hostname. 
 ``` 
-127.0.0.1 ballerina.guides.io
+   127.0.0.1 ballerina.guides.io
 ```
 
-Change the value of the `url` field of gRPC client endpoint to `http://ballerina.guides.io` in the `orderMgt_sample_client.bal` file and run it using the following command.        
+First, change the value of the `url` field of gRPC client endpoint to `http://ballerina.guides.io` in the `orderMgt_sample_client.bal` file, and then run it using the following command.        
 ```bash 
-$ ballerina run grpc_client
+   $ ballerina run grpc_client
 ```
 
 ## Observability 
