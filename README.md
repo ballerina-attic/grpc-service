@@ -47,11 +47,11 @@ Ballerina is a complete programming language that supports custom project struct
 ```
 grpc-service
   └── guide
-       ├── grpc_service
-       │    └── order_mgt_service.bal
-       └── tests
-            ├── order_mgt_service_test.bal          
-            └── orderMgt_pb.bal
+       └── grpc_service     
+	    ├── order_mgt_service.bal
+	    └── tests
+	         ├── orderMgt_pb.bal
+	         └── order_mgt_service_test.bal
 ```
 
 - Create the above directories in your local machine and also create empty `.bal` files.
