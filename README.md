@@ -38,7 +38,7 @@ The following figure illustrates all the functionalities of the order_mgt gRPC s
 
 ## Implementation
 
-> If you want to skip the basics, download the git repository and move directly to the [Testing](#testing) section.
+> If you want to skip the basics, you can download the git repo and directly move to the "Testing" section by skipping "Implementation" section.
 
 ### Create the project structure
 
