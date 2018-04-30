@@ -20,14 +20,14 @@ import ballerina/grpc;
 // This is client implementation for unary blocking scenario
 function main(string... args) {
     // Client endpoint configuration
-    endpoint order_mgtBlockingClient order_mgtBlockingEp {
+    endpoint orderMgtBlockingClient orderMgtBlockingEp {
         url:"http://localhost:9090"
     };
 
     // Create an order
-    log:printInfo("---------------------------Create a new order---------------------------");
+    log:printInfo("-----------------------Create a new order-----------------------");
     orderInfo orderReq = {id:"100500", name:"XYZ", description:"Sample order."};
-    var addResponse = order_mgtBlockingEp->addOrder(orderReq);
+    var addResponse = orderMgtBlockingEp->addOrder(orderReq);
     match addResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -41,9 +41,9 @@ function main(string... args) {
     }
 
     // Update an order
-    log:printInfo("------------------------Update an existing order------------------------");
-    orderInfo updateReq = {id:"100500", name:"XYZ", description:"Updated order."};
-    var updateResponse = order_mgtBlockingEp->updateOrder(updateReq);
+    log:printInfo("--------------------Update an existing order--------------------");
+    orderInfo updateReq = {id:"100500", name:"XYZ", description:"Updated."};
+    var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
     match updateResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -57,8 +57,8 @@ function main(string... args) {
     }
 
     // Find an order
-    log:printInfo("-------------------------Find an existing order-------------------------");
-    var findResponse = order_mgtBlockingEp->findOrder("100500");
+    log:printInfo("---------------------Find an existing order---------------------");
+    var findResponse = orderMgtBlockingEp->findOrder("100500");
     match findResponse {
         (string, grpc:Headers) payload => {
             string result;
@@ -72,8 +72,8 @@ function main(string... args) {
     }
 
     // Cancel an order
-    log:printInfo("-----------------------------Cancel an order----------------------------");
-    var cancelResponse = order_mgtBlockingEp->cancelOrder("100500");
+    log:printInfo("-------------------------Cancel an order------------------------");
+    var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
     match cancelResponse {
         (string, grpc:Headers) payload => {
             string result;
