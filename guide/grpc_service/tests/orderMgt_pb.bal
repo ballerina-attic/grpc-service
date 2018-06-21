@@ -10,9 +10,9 @@ public type orderMgtBlockingStub object {
         grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY, descriptorMap);
+        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
     
@@ -90,9 +90,9 @@ public type orderMgtStub object {
         grpc:Stub stub;
     }
 
-    function initStub (grpc:Client clientEndpoint) {
+    function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
     
@@ -124,13 +124,13 @@ public type orderMgtBlockingClient object {
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client ep = new;
+        ep.init(config);
+        self.client = ep;
         // initialize service stub.
-        orderMgtBlockingStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        orderMgtBlockingStub navStub = new;
+        navStub.initStub(ep);
+        self.stub = navStub;
     }
 
     public function getCallerActions () returns (orderMgtBlockingStub) {
@@ -148,13 +148,13 @@ public type orderMgtClient object {
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client ep = new;
+        ep.init(config);
+        self.client = ep;
         // initialize service stub.
-        orderMgtStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        orderMgtStub navStub = new;
+        navStub.initStub(ep);
+        self.stub = navStub;
     }
 
     public function getCallerActions () returns (orderMgtStub) {
