@@ -83,7 +83,7 @@ endpoint grpc:Listener listener {
 map<orderInfo> ordersMap;
 
 // Type definition for an order.
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;

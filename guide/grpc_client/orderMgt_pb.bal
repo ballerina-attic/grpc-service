@@ -5,10 +5,8 @@ import ballerina/io;
 // Blocking client.
 public type orderMgtBlockingStub object {
     
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -85,10 +83,8 @@ public type orderMgtBlockingStub object {
 // Non-blocking client.
 public type orderMgtStub object {
     
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
     function initStub (grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -117,10 +113,8 @@ public type orderMgtStub object {
 // Blocking endpoint.
 public type orderMgtBlockingClient object {
     
-    public {
-        grpc:Client client;
-        orderMgtBlockingStub stub;
-    }
+    public grpc:Client client;
+    public orderMgtBlockingStub stub;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -141,10 +135,8 @@ public type orderMgtBlockingClient object {
 //Non-blocking endpoint.
 public type orderMgtClient object {
     
-    public {
-        grpc:Client client;
-        orderMgtStub stub;
-    }
+    public grpc:Client client;
+    public orderMgtStub stub;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -163,7 +155,7 @@ public type orderMgtClient object {
 };
 
 // Type definition.
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;
