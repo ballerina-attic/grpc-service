@@ -19,11 +19,11 @@ import ballerina/test;
 
 // Unit tests for the gRPC service implemented
 
-//@test:BeforeSuite
-//function beforeFunc() {
-//    // Start the 'orderMgt' gRPC service before running the test.
-//    _ = test:startServices("grpc_service");
-//}
+@test:BeforeSuite
+function beforeFunc() {
+    // Start the 'orderMgt' gRPC service before running the test.
+    _ = test:startServices("grpc_service");
+}
 
 // Client endpoint configuration
 endpoint orderMgtBlockingClient orderMgtBlockingEp {
@@ -116,7 +116,7 @@ function testCancelOrder() {
 }
 
 //@test:AfterSuite
-//function afterFunc() {
-//    // Stop the 'orderMgt' gRPC service after running the test.
-//    test:stopServices("grpc_service");
-//}
+function afterFunc() {
+    // Stop the 'orderMgt' gRPC service after running the test.
+    test:stopServices("grpc_service");
+}
