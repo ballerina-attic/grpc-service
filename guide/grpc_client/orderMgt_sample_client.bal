@@ -18,7 +18,7 @@ import ballerina/log;
 import ballerina/grpc;
 
 // This is client implementation for unary blocking scenario
-function main(string... args) {
+public function main(string... args) {
     // Client endpoint configuration
     endpoint orderMgtBlockingClient orderMgtBlockingEp {
         url:"http://localhost:9090"
