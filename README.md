@@ -369,7 +369,7 @@ endpoint grpc:Listener listener {
 
 map<orderInfo> ordersMap;
 
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;
@@ -441,7 +441,7 @@ endpoint grpc:Listener listener {
 
 map<orderInfo> ordersMap;
 
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;
