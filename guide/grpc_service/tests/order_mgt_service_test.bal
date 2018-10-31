@@ -19,7 +19,7 @@ import ballerina/test;
 
 // Unit tests for the gRPC service implemented
 
-@test:BeforeSuite
+//@test:BeforeSuite
 function beforeFunc() {
     // Start the 'orderMgt' gRPC service before running the test.
     _ = test:startServices("grpc_service");
