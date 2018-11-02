@@ -31,6 +31,7 @@ type orderInfo record {
     string id;
     string name;
     string description;
+    !...
 };
 
 // gRPC service.

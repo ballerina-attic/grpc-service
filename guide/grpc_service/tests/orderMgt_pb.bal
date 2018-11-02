@@ -91,20 +91,20 @@ public type orderMgtStub object {
         self.stub = navStub;
     }
     
-    function findOrder (string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpc_service.orderMgt/findOrder", req, listener, headers = headers);
+    function findOrder (string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("grpc_service.orderMgt/findOrder", req, msgListener, headers = headers);
     }
     
-    function addOrder (orderInfo req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpc_service.orderMgt/addOrder", req, listener, headers = headers);
+    function addOrder (orderInfo req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("grpc_service.orderMgt/addOrder", req, msgListener, headers = headers);
     }
     
-    function updateOrder (orderInfo req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpc_service.orderMgt/updateOrder", req, listener, headers = headers);
+    function updateOrder (orderInfo req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("grpc_service.orderMgt/updateOrder", req, msgListener, headers = headers);
     }
     
-    function cancelOrder (string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("grpc_service.orderMgt/cancelOrder", req, listener, headers = headers);
+    function cancelOrder (string req, typedesc msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.stub.nonBlockingExecute("grpc_service.orderMgt/cancelOrder", req, msgListener, headers = headers);
     }
     
 };
