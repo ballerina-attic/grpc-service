@@ -181,7 +181,7 @@ the protobuf tool to automatically generate a client template and the client stu
 
 - Run the following command to auto-generate the client stub and a Ballerina gRPC client template. 
 ```bash
-   $ ballerina grpc --input target/grpc/orderMgt.proto --output grpc_client
+   $ ballerina grpc --input target/grpc/orderMgt.proto --output grpc_client --mode client
 ```
 
 - Now, you should see two new files inside the `guide/grpc_client` directory namely `orderMgt_sample_client.bal`, 
@@ -369,7 +369,7 @@ endpoint grpc:Listener listener {
 
 map<orderInfo> ordersMap;
 
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;
@@ -441,7 +441,7 @@ endpoint grpc:Listener listener {
 
 map<orderInfo> ordersMap;
 
-type orderInfo {
+type orderInfo record {
     string id;
     string name;
     string description;
