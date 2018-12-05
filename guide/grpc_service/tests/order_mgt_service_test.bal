@@ -19,17 +19,8 @@ import ballerina/test;
 
 // Unit tests for the gRPC service implemented
 
-//@test:BeforeSuite
-function beforeFunc() {
-    // Start the 'orderMgt' gRPC service before running the test.
-    _ = test:startServices("grpc_service");
-}
-
 // Client endpoint configuration
-endpoint orderMgtBlockingClient orderMgtBlockingEp {
-    url:"http://localhost:9090"
-};
-
+orderMgtBlockingClient orderMgtBlockingEp = new("http://localhost:9090");
 
 @test:Config
 // Function to test 'addOrder'.
@@ -37,17 +28,14 @@ function testAddOrder() {
     // Create an order
     orderInfo orderReq = {id: "100500", name: "XYZ", description: "Sample order."};
     var addResponse = orderMgtBlockingEp->addOrder(orderReq);
-    match addResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            string expected = "Status : Order created; OrderID : 100500";
-            test:assertEquals(result, expected, msg = "Response mismatch!");
-        }
-        error err => {
-            test:assertTrue(false, msg = "Error: Cannot get response from 'addOrder' method");
-        }
+    if (addResponse is error) {
+        test:assertTrue(false, msg = "Error: Cannot get response from 'addOrder' method");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = addResponse;
+        string expected = "Status : Order created; OrderID : 100500";
+        test:assertEquals(result, expected, msg = "Response mismatch!");
     }
 }
 
@@ -59,18 +47,14 @@ function testUpdateOrder() {
     // Update an order
     orderInfo updateReq = {id: "100500", name: "XYZ", description: "Updated order."};
     var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
-    match updateResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            string expected = "Order : '100500' updated.";
-            test:assertEquals(result, expected, msg = "Response mismatch!");
-        }
-        error err => {
-            test:assertTrue(false, msg = "Error: Cannot get response from 'updateOrder' method");
-
-        }
+    if (updateResponse is error) {
+        test:assertTrue(false, msg = "Error: Cannot get response from 'updateOrder' method");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = updateResponse;
+        string expected = "Order : '100500' updated.";
+        test:assertEquals(result, expected, msg = "Response mismatch!");
     }
 }
 
@@ -81,17 +65,14 @@ function testUpdateOrder() {
 function testFindOrder() {
     // Find an order
     var findResponse = orderMgtBlockingEp->findOrder("100500");
-    match findResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            string expected = "{\"id\":\"100500\", \"name\":\"XYZ\", \"description\":\"Updated order.\"}";
-            test:assertEquals(result, expected, msg = "Response mismatch!");
-        }
-        error err => {
-            test:assertTrue(false, msg = "Error: Cannot get response from 'findOrder' method");
-        }
+    if (findResponse is error) {
+        test:assertTrue(false, msg = "Error: Cannot get response from 'findOrder' method");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = findResponse;
+        string expected = "{\"id\":\"100500\", \"name\":\"XYZ\", \"description\":\"Updated order.\"}";
+        test:assertEquals(result, expected, msg = "Response mismatch!");
     }
 }
 @test:Config {
@@ -101,22 +82,13 @@ function testFindOrder() {
 function testCancelOrder() {
     // Cancel an order
     var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
-    match cancelResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            string expected = "Order : '100500' removed.";
-            test:assertEquals(result, expected, msg = "Response mismatch!");
-        }
-        error err => {
-            test:assertTrue(false, msg = "Error: Cannot get response from 'cancelOrder' method");
-        }
+    if (cancelResponse is error) {
+        test:assertTrue(false, msg = "Error: Cannot get response from 'cancelOrder' method");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = cancelResponse;
+        string expected = "Order : '100500' removed.";
+        test:assertEquals(result, expected, msg = "Response mismatch!");
     }
-}
-
-//@test:AfterSuite
-function afterFunc() {
-    // Stop the 'orderMgt' gRPC service after running the test.
-    test:stopServices("grpc_service");
 }
