@@ -380,7 +380,7 @@ Once you are done with the development, you can dbeploy the gRPC service using a
 
 You can run the service that we developed above as a docker container. As Ballerina platform includes [Ballerina_Docker_Extension](https://github.com/ballerinax/docker), which offers native support for running ballerina programs on containers, you just need to put the corresponding docker annotations on your service code. 
 
-- In our orderMgt_sample_service, we need to import  `ballerinax/docker` and use the annotation `@docker:Config` as shown below to enable docker image generation during the build time. 
+- In our `orderMgt_sample_service`, we need to import  `ballerinax/docker` and use the annotation `@docker:Config` as shown below to enable docker image generation during the build time. 
 
 ##### order_mgt_service.bal
 ```ballerina
@@ -395,7 +395,6 @@ import ballerina/log;
 }
 
 @docker:Expose{}
-// gRPC service endpoint definition.
 listener grpc:Listener ep = new (9090);
 
 // Order management is done using an in memory map.
@@ -412,11 +411,11 @@ service orderMgt on ep {
 ```
    $ ballerina build grpc_service
 
-   Run following command to start docker container: 
-   docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
+    Run the following command to start a Docker container:
+    docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
 
-- Once you successfully build the docker image, you can run it with the `docker run` command that is shown in the previous step.  
+- Once you successfully build the docker image, you can run it with the `docker run` command which is shown below.  
 ```bash   
    $ docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
@@ -434,7 +433,7 @@ service orderMgt on ep {
 
 - You can run the service that we developed above, on Kubernetes. The Ballerina language offers native support for running a ballerina programs on Kubernetes, with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the docker images. So you don't need to explicitly create docker images prior to deploying it on Kubernetes. Refer to [Ballerina_Kubernetes_Extension](https://github.com/ballerinax/kubernetes) for more details and samples on Kubernetes deployment with Ballerina. You can also find details on using Minikube to deploy Ballerina programs. 
 
-- Let's now see how we can deploy our `order_mgt_service` on Kubernetes.
+- Let's now see how we can deploy our `orderMgt_sample_service` on Kubernetes.
 
 - First we need to import `ballerinax/kubernetes` and use `@kubernetes` annotations as shown below to enable kubernetes deployment for the service we developed above. 
 
@@ -443,6 +442,7 @@ service orderMgt on ep {
 ```ballerina
 import ballerina/grpc;
 import ballerinax/kubernetes;
+import ballerina/log;
 
 @kubernetes:Ingress {
     hostname:"ballerina.guides.io",
@@ -460,22 +460,14 @@ import ballerinax/kubernetes;
     name:"ballerina-guides-grpc-service"
 }
 
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9090);
 
-map<orderInfo> ordersMap;
-
-type orderInfo record {
-    string id;
-    string name;
-    string description;
-};
+// Order management is done using an in memory map.
+// Add some sample orders to 'orderMap' at startup.
+map<orderInfo> ordersMap = {};
 
 // gRPC service.
-@grpc:ServiceConfig
-service orderMgt bind listener {
+service orderMgt on ep {
 ``` 
 
 - Here we have used `@kubernetes:Deployment` to specify the docker image name which will be created as part of building this service. 
@@ -488,19 +480,19 @@ service orderMgt bind listener {
    $ ballerina build grpc_service
   
    Run following command to deploy kubernetes artifacts:  
-   kubectl apply -f ./target/grpc_service/kubernetes
+   kubectl apply -f ./target/kubernetes/grpc_service
 ```
 
 - You can verify that the docker image that we specified in `@kubernetes:Deployment` is created, by using `$ docker images`. 
-- Also the Kubernetes artifacts related our service, will be generated in `./target/grpc_service/kubernetes`. 
+- Also the Kubernetes artifacts related our service, will be generated in `./target/kubernetes/grpc_service`. 
 - Now you can create the Kubernetes deployment using:
 
 ```bash
-   $ kubectl apply -f ./target/grpc_service/kubernetes 
+   $ kubectl apply -f ./target/kubernetes/grpc_service
  
-   deployment.extensions "ballerina-guides-grpc-service" created
-   ingress.extensions "ballerina-guides-grpc-service" created
-   service "ballerina-guides-grpc-service" created
+    service "ballerina-guides-grpc-service" created
+    ingress "ballerina-guides-grpc-service" created
+    deployment "ballerina-guides-grpc-service" created
 ```
 
 - You can verify Kubernetes deployment, service and ingress are running properly, by using following Kubernetes commands.
