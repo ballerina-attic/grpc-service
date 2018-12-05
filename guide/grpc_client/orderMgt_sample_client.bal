@@ -38,7 +38,7 @@ public function main(string... args) {
 
     // Update an order
     log:printInfo("--------------------Update an existing order--------------------");
-    orderInfo updateReq = {id:"100501", name:"XYZ", description:"Updated."};
+    orderInfo updateReq = {id:"100500", name:"XYZ", description:"Updated."};
     var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
     if (updateResponse is error) {
         log:printError("Error from Connector: " + updateResponse.reason() + " - "
@@ -52,7 +52,7 @@ public function main(string... args) {
 
     // Find an order
     log:printInfo("---------------------Find an existing order---------------------");
-    var findResponse = orderMgtBlockingEp->findOrder("100501");
+    var findResponse = orderMgtBlockingEp->findOrder("100500");
     if (findResponse is error) {
         log:printError("Error from Connector: " + findResponse.reason() + " - "
                                                 + <string>findResponse.detail().message + "\n");
@@ -65,7 +65,7 @@ public function main(string... args) {
 
     // Cancel an order
     log:printInfo("-------------------------Cancel an order------------------------");
-    var cancelResponse = orderMgtBlockingEp->cancelOrder("100501");
+    var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
     if (cancelResponse is error) {
         log:printError("Error from Connector: " + cancelResponse.reason() + " - "
                 + <string>cancelResponse.detail().message + "\n");
