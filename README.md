@@ -59,7 +59,7 @@ grpc-service
 
 ### Define the gRPC service
 
-Let's get started with the definition of the `orderMgt.proto` definition. 
+Let's get started with the protobuf definition of the gRPC service which handles order management.
 The protobuf definition of this gRPC service in shown below.
 
 ```proto
@@ -415,7 +415,7 @@ service orderMgt on ep {
     docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
 
-- Once you successfully build the docker image, you can run it with the `docker run` command which is shown below.  
+- Once you successfully build the docker image, you can run it with the `docker run` command as shown below.  
 ```bash   
    $ docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
