@@ -1,6 +1,5 @@
 // NOTE: This is an auto generated stub based on service definition in `orderMgt.proto` file.
 import ballerina/grpc;
-import ballerina/io;
 
 public type orderMgtBlockingClient client object {
     private grpc:Client grpcClient = new;

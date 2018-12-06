@@ -47,132 +47,174 @@ Ballerina is a complete programming language that supports custom project struct
 grpc-service
   └── guide
        └── grpc_service     
-	    ├── order_mgt_service.bal
-	    └── tests
-	         ├── orderMgt_pb.bal
-	         └── order_mgt_service_test.bal
+       └── orderMgt.proto
 ```
 
-- Create the above directories in your local machine and also create empty `.bal` files.
+- Create the above directories in your local machine and also create empty `.proto` file.
 
 - Then open the terminal and navigate to `grpc-service/guide` and run Ballerina project initializing toolkit.
 ```bash
    $ ballerina init
 ```
 
-### Developing the gRPC service
+### Define the gRPC service
 
-Let's get started with the implementation of the `order_mgt_service`, which is a gRPC service that handles order management. This service can have dedicated procedures for each order management functionality.
+Let's get started with the protobuf definition of the gRPC service which handles order management.
+The protobuf definition of this gRPC service in shown below.
 
-The implementation of this gRPC service is shown below.
+```proto
+syntax = "proto3";
+package grpc_service;
+import "google/protobuf/wrappers.proto";
+service orderMgt {
+    rpc findOrder(google.protobuf.StringValue) returns (google.protobuf.StringValue);
+    rpc addOrder(orderInfo) returns (google.protobuf.StringValue);
+    rpc updateOrder(orderInfo) returns (google.protobuf.StringValue);
+    rpc cancelOrder(google.protobuf.StringValue) returns (google.protobuf.StringValue);
+}
+message orderInfo {
+	string id = 1;
+	string name = 2;
+	string description = 3;
+}
 
+```
+
+### Implement the gRPC service
+
+Let's implement the order management gRPC service which is defined in the proto file. You can use the protobuf tool to 
+automatically generate a service template and the stub.
+
+- Run the following command to auto-generate the stub and a Ballerina gRPC service template. 
+```bash
+   $ ballerina grpc --input orderMgt.proto --output grpc_service --mode service
+```
+
+- Now, you should see two new files inside the `guide/grpc_service` directory namely `orderMgt_sample_service.bal`, 
+which is a sample gRPC service and `orderMgt_pb.bal`, which is the gRPC stub.
+
+- Replace the content of the `orderMgt_sample_service.bal` file with the business logic you need. For example, refer to 
+the below implementation of gRPC service.
 
 ##### order_mgt_service.bal
 ```ballerina
 import ballerina/grpc;
+import ballerina/log;
 
 // gRPC service endpoint definition.
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9090);
 
 // Order management is done using an in memory map.
-// Add sample orders to the 'orderMap' at startup.
-map<orderInfo> ordersMap;
-
-// Type definition for an order.
-type orderInfo record {
-    string id;
-    string name;
-    string description;
-};
+// Add some sample orders to 'orderMap' at startup.
+map<orderInfo> ordersMap = {};
 
 // gRPC service.
-@grpc:ServiceConfig
-service orderMgt bind listener {
+service orderMgt on ep {
 
     // gRPC method to find an order.
-    findOrder(endpoint caller, string orderId) {
-        string payload;
+    resource function findOrder(grpc:Caller caller, string orderId) {
+        string payload = "";
+        error? result = ();
         // Find the requested order from the map.
         if (ordersMap.hasKey(orderId)) {
-            json orderDetails = check <json>ordersMap[orderId];
-            payload = orderDetails.toString();
+            var jsonValue = json.convert(ordersMap[orderId]);
+            if (jsonValue is error) {
+                // Send casting error as internal error.
+                result = caller->sendError(grpc:INTERNAL, <string>jsonValue.detail().message);
+            } else {
+                json orderDetails = jsonValue;
+                payload = orderDetails.toString();
+                // Send response to the caller.
+                result = caller->send(payload);
+                result = caller->complete();
+            }
         } else {
+            // Send entity not found error.
             payload = "Order : '" + orderId + "' cannot be found.";
+            result = caller->sendError(grpc:NOT_FOUND, payload);
         }
 
-        // Send response to the caller.
-        _ = caller->send(payload);
-        _ = caller->complete();
+        if (result is error) {
+            log:printError("Error from Connector: " + result.reason() + " - "
+                    + <string>result.detail().message + "\n");
+        }
     }
 
     // gRPC method to create a new Order.
-    addOrder(endpoint caller, orderInfo orderReq) {
+    resource function addOrder(grpc:Caller caller, orderInfo orderReq) {
         // Add the new order to the map.
         string orderId = orderReq.id;
         ordersMap[orderReq.id] = orderReq;
-        // Create a response message.
+        // Create response message.
         string payload = "Status : Order created; OrderID : " + orderId;
 
-        // Send a response to the caller.
-        _ = caller->send(payload);
-        _ = caller->complete();
+        // Send response to the caller.
+        error? result = caller->send(payload);
+        result = caller->complete();
+        if (result is error) {
+            log:printError("Error from Connector: " + result.reason() + " - "
+                    + <string>result.detail().message + "\n");
+        }
     }
 
     // gRPC method to update an existing Order.
-    updateOrder(endpoint caller, orderInfo updatedOrder) {
+    resource function updateOrder(grpc:Caller caller, orderInfo updatedOrder) {
         string payload;
+        error? result = ();
         // Find the order that needs to be updated.
         string orderId = updatedOrder.id;
         if (ordersMap.hasKey(orderId)) {
             // Update the existing order.
             ordersMap[orderId] = updatedOrder;
             payload = "Order : '" + orderId + "' updated.";
+            // Send response to the caller.
+            result = caller->send(payload);
+            result = caller->complete();
         } else {
+            // Send entity not found error.
             payload = "Order : '" + orderId + "' cannot be found.";
+            result = caller->sendError(grpc:NOT_FOUND, payload);
         }
 
-        // Send a response to the caller.
-        _ = caller->send(payload);
-        _ = caller->complete();
+        if (result is error) {
+            log:printError("Error from Connector: " + result.reason() + " - "
+                    + <string>result.detail().message + "\n");
+        }
     }
 
     // gRPC method to delete an existing Order.
-    cancelOrder(endpoint caller, string orderId) {
+    resource function cancelOrder(grpc:Caller caller, string orderId) {
         string payload;
+        error? result = ();
+        // Find the order that needs to be updated.
         if (ordersMap.hasKey(orderId)) {
             // Remove the requested order from the map.
             _ = ordersMap.remove(orderId);
             payload = "Order : '" + orderId + "' removed.";
+            // Send response to the caller.
+            result = caller->send(payload);
+            result = caller->complete();
         } else {
+            // Send entity not found error.
             payload = "Order : '" + orderId + "' cannot be found.";
+            result = caller->sendError(grpc:NOT_FOUND, payload);
         }
-
-        // Send a response to the caller.
-        _ = caller->send(payload);
-        _ = caller->complete();
+        if (result is error) {
+            log:printError("Error from Connector: " + result.reason() + " - "
+                    + <string>result.detail().message + "\n");
+        }
     }
 }
+
 ```
 
-You can implement the business logic of each resource as per your requirements. For simplicity, we use an in-memory 
-map to record all the order details. As shown in the above code, to create a gRPC service you need to import the 
+For simplicity, we use an in-memory map to record all the order details. As shown in the above code, to create a gRPC service you need to import the 
 `ballerina/grpc` and define a `grpc:Listener` endpoint.  
 
 ### Implement a gRPC client
 
 You can also write a gRPC client in Ballerina to consume the methods implemented in the gRPC service. You can use 
 the protobuf tool to automatically generate a client template and the client stub.
-
-- First, you need to build the gRPC service implemented above, to generate a `.proto` definition of the 
-`orderMgt` gRPC service. Navigate to `grpc-service/guide` and run the following command. This will generate a proto
- definition named `orderMgt.proto` inside `./target/grpc`.
-
-```bash
-   $ ballerina build grpc_service/
-```
 
 - Create a new directory using the following command to store the client and client stub files.
 ```bash
@@ -181,7 +223,7 @@ the protobuf tool to automatically generate a client template and the client stu
 
 - Run the following command to auto-generate the client stub and a Ballerina gRPC client template. 
 ```bash
-   $ ballerina grpc --input target/grpc/orderMgt.proto --output grpc_client --mode client
+   $ ballerina grpc --input orderMgt.proto --output grpc_client --mode client
 ```
 
 - Now, you should see two new files inside the `guide/grpc_client` directory namely `orderMgt_sample_client.bal`, 
@@ -198,72 +240,63 @@ import ballerina/grpc;
 // This is client implementation for unary blocking scenario
 public function main(string... args) {
     // Client endpoint configuration
-    endpoint orderMgtBlockingClient orderMgtBlockingEp {
-        url:"http://localhost:9090"
-    };
+    orderMgtBlockingClient orderMgtBlockingEp = new("http://localhost:9090");
 
     // Create an order
     log:printInfo("-----------------------Create a new order-----------------------");
     orderInfo orderReq = {id:"100500", name:"XYZ", description:"Sample order."};
     var addResponse = orderMgtBlockingEp->addOrder(orderReq);
-    match addResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            log:printInfo("Response - " + result + "\n");
-        }
-        error err => {
-            log:printError("Error from Connector: " + err.message + "\n");
-        }
+    if (addResponse is error) {
+        log:printError("Error from Connector: " + addResponse.reason() + " - "
+                                                + <string>addResponse.detail().message + "\n");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = addResponse;
+        log:printInfo("Response - " + result + "\n");
     }
 
     // Update an order
     log:printInfo("--------------------Update an existing order--------------------");
     orderInfo updateReq = {id:"100500", name:"XYZ", description:"Updated."};
     var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
-    match updateResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            log:printInfo("Response - " + result + "\n");
-        }
-        error err => {
-            log:printError("Error from Connector: " + err.message + "\n");
-        }
+    if (updateResponse is error) {
+        log:printError("Error from Connector: " + updateResponse.reason() + " - "
+                                                + <string>updateResponse.detail().message + "\n");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = updateResponse;
+        log:printInfo("Response - " + result + "\n");
     }
 
     // Find an order
     log:printInfo("---------------------Find an existing order---------------------");
     var findResponse = orderMgtBlockingEp->findOrder("100500");
-    match findResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            log:printInfo("Response - " + result + "\n");
-        }
-        error err => {
-            log:printError("Error from Connector: " + err.message + "\n");
-        }
+    if (findResponse is error) {
+        log:printError("Error from Connector: " + findResponse.reason() + " - "
+                                                + <string>findResponse.detail().message + "\n");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = findResponse;
+        log:printInfo("Response - " + result + "\n");
     }
 
     // Cancel an order
     log:printInfo("-------------------------Cancel an order------------------------");
     var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
-    match cancelResponse {
-        (string, grpc:Headers) payload => {
-            string result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            log:printInfo("Response - " + result + "\n");
-        }
-        error err => {
-            log:printError("Error from Connector: " + err.message + "\n");
-        }
+    if (cancelResponse is error) {
+        log:printError("Error from Connector: " + cancelResponse.reason() + " - "
+                + <string>cancelResponse.detail().message + "\n");
+    } else {
+        string result;
+        grpc:Headers resHeaders;
+        (result, resHeaders) = cancelResponse;
+        log:printInfo("Response - " + result + "\n");
     }
 }
+
 ```
 
 - With that we have completed the development of our 'orderMgt' service and the gRPC client. 
@@ -308,8 +341,7 @@ In Ballerina, the unit test cases should be in the same package inside a folder 
    function testAddOrder() {
 ```
   
-This guide contains unit test cases for each method available in the 'order_mgt_service'. The 'tests' folder also 
-contains a copy of the client stub file, which was generated using the protobuf tool. Note that without this file you cannot run the tests in this guide. 
+This guide contains unit test cases for each method available in the 'orderMgt_sample_service'.
 
 To run the unit tests, navigate to `grpc-service/guide` and run the following command.
 ```bash
@@ -320,7 +352,7 @@ To check the implementation of the test file, see [order_mgt_service_test.bal](h
 
 ## Deployment
 
-Once you are done with the development, you can deploy the gRPC service using any of the methods that we listed below. 
+Once you are done with the development, you can dbeploy the gRPC service using any of the methods that we listed below. 
 
 ### Deploying locally
 
@@ -340,20 +372,21 @@ Once you are done with the development, you can deploy the gRPC service using an
 ```bash
    $ ballerina run target/grpc_service.balx 
 
-   ballerina: initiating service(s) in 'target/grpc_service.balx'
-   ballerina: started gRPC server connector on port 9090
+   Initiating service(s) in 'target/grpc_service.balx'
+   [ballerina/grpc] started HTTP/WS endpoint 0.0.0.0:9090
 ```
 
 ### Deploying on Docker
 
 You can run the service that we developed above as a docker container. As Ballerina platform includes [Ballerina_Docker_Extension](https://github.com/ballerinax/docker), which offers native support for running ballerina programs on containers, you just need to put the corresponding docker annotations on your service code. 
 
-- In our order_mgt_service, we need to import  `ballerinax/docker` and use the annotation `@docker:Config` as shown below to enable docker image generation during the build time. 
+- In our `orderMgt_sample_service`, we need to import  `ballerinax/docker` and use the annotation `@docker:Config` as shown below to enable docker image generation during the build time. 
 
 ##### order_mgt_service.bal
 ```ballerina
-import ballerina/grpc;
 import ballerinax/docker;
+import ballerina/grpc;
+import ballerina/log;
 
 @docker:Config {
     registry:"ballerina.guides.io",
@@ -362,22 +395,14 @@ import ballerinax/docker;
 }
 
 @docker:Expose{}
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9090);
 
-map<orderInfo> ordersMap;
-
-type orderInfo record {
-    string id;
-    string name;
-    string description;
-};
+// Order management is done using an in memory map.
+// Add some sample orders to 'orderMap' at startup.
+map<orderInfo> ordersMap = {};
 
 // gRPC service.
-@grpc:ServiceConfig
-service orderMgt bind listener {
+service orderMgt on ep {
 ``` 
 
 - `@docker:Config` annotation is used to provide the basic docker image configurations for the sample. `@docker:Expose {}` is used to expose the port. 
@@ -386,11 +411,11 @@ service orderMgt bind listener {
 ```
    $ ballerina build grpc_service
 
-   Run following command to start docker container: 
-   docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
+    Run the following command to start a Docker container:
+    docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
 
-- Once you successfully build the docker image, you can run it with the `docker run` command that is shown in the previous step.  
+- Once you successfully build the docker image, you can run it with the `docker run` command as shown below.  
 ```bash   
    $ docker run -d -p 9090:9090 ballerina.guides.io/grpc_service:v1.0
 ```
@@ -408,7 +433,7 @@ service orderMgt bind listener {
 
 - You can run the service that we developed above, on Kubernetes. The Ballerina language offers native support for running a ballerina programs on Kubernetes, with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the docker images. So you don't need to explicitly create docker images prior to deploying it on Kubernetes. Refer to [Ballerina_Kubernetes_Extension](https://github.com/ballerinax/kubernetes) for more details and samples on Kubernetes deployment with Ballerina. You can also find details on using Minikube to deploy Ballerina programs. 
 
-- Let's now see how we can deploy our `order_mgt_service` on Kubernetes.
+- Let's now see how we can deploy our `orderMgt_sample_service` on Kubernetes.
 
 - First we need to import `ballerinax/kubernetes` and use `@kubernetes` annotations as shown below to enable kubernetes deployment for the service we developed above. 
 
@@ -417,6 +442,7 @@ service orderMgt bind listener {
 ```ballerina
 import ballerina/grpc;
 import ballerinax/kubernetes;
+import ballerina/log;
 
 @kubernetes:Ingress {
     hostname:"ballerina.guides.io",
@@ -434,22 +460,14 @@ import ballerinax/kubernetes;
     name:"ballerina-guides-grpc-service"
 }
 
-endpoint grpc:Listener listener {
-    host:"localhost",
-    port:9090
-};
+listener grpc:Listener ep = new (9090);
 
-map<orderInfo> ordersMap;
-
-type orderInfo record {
-    string id;
-    string name;
-    string description;
-};
+// Order management is done using an in memory map.
+// Add some sample orders to 'orderMap' at startup.
+map<orderInfo> ordersMap = {};
 
 // gRPC service.
-@grpc:ServiceConfig
-service orderMgt bind listener {
+service orderMgt on ep {
 ``` 
 
 - Here we have used `@kubernetes:Deployment` to specify the docker image name which will be created as part of building this service. 
@@ -462,19 +480,19 @@ service orderMgt bind listener {
    $ ballerina build grpc_service
   
    Run following command to deploy kubernetes artifacts:  
-   kubectl apply -f ./target/grpc_service/kubernetes
+   kubectl apply -f ./target/kubernetes/grpc_service
 ```
 
 - You can verify that the docker image that we specified in `@kubernetes:Deployment` is created, by using `$ docker images`. 
-- Also the Kubernetes artifacts related our service, will be generated in `./target/grpc_service/kubernetes`. 
+- Also the Kubernetes artifacts related our service, will be generated in `./target/kubernetes/grpc_service`. 
 - Now you can create the Kubernetes deployment using:
 
 ```bash
-   $ kubectl apply -f ./target/grpc_service/kubernetes 
+   $ kubectl apply -f ./target/kubernetes/grpc_service
  
-   deployment.extensions "ballerina-guides-grpc-service" created
-   ingress.extensions "ballerina-guides-grpc-service" created
-   service "ballerina-guides-grpc-service" created
+    service "ballerina-guides-grpc-service" created
+    ingress "ballerina-guides-grpc-service" created
+    deployment "ballerina-guides-grpc-service" created
 ```
 
 - You can verify Kubernetes deployment, service and ingress are running properly, by using following Kubernetes commands.
