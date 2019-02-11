@@ -516,6 +516,8 @@ First, change the value of the `url` field of gRPC client endpoint to `http://lo
 
 Ingress:
 
+Make sure that Nginx backend and controller deployed as mentioned in [here](https://github.com/ballerinax/kubernetes/tree/master/samples#setting-up-nginx).
+
 Add `/etc/hosts` entry to match hostname. 
 ``` 
    127.0.0.1 ballerina.guides.io
