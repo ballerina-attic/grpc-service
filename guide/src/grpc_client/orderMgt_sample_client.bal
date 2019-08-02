@@ -12,11 +12,11 @@ public function main(string... args) {
     var addResponse = orderMgtBlockingEp->addOrder(orderReq);
     if (addResponse is error) {
         log:printError("Error from Connector: " + addResponse.reason() + " - "
-                                                + <string>addResponse.detail().message + "\n");
+                                                + <string>addResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = addResponse;
+        [result, resHeaders] = addResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -26,11 +26,11 @@ public function main(string... args) {
     var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
     if (updateResponse is error) {
         log:printError("Error from Connector: " + updateResponse.reason() + " - "
-                                                + <string>updateResponse.detail().message + "\n");
+                                                + <string>updateResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = updateResponse;
+        [result, resHeaders] = updateResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -39,11 +39,11 @@ public function main(string... args) {
     var findResponse = orderMgtBlockingEp->findOrder("100500");
     if (findResponse is error) {
         log:printError("Error from Connector: " + findResponse.reason() + " - "
-                                                + <string>findResponse.detail().message + "\n");
+                                                + <string>findResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = findResponse;
+        [result, resHeaders] = findResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -52,11 +52,11 @@ public function main(string... args) {
     var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
     if (cancelResponse is error) {
         log:printError("Error from Connector: " + cancelResponse.reason() + " - "
-                + <string>cancelResponse.detail().message + "\n");
+                + <string>cancelResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = cancelResponse;
+        [result, resHeaders] = cancelResponse;
         log:printInfo("Response - " + result + "\n");
     }
 }

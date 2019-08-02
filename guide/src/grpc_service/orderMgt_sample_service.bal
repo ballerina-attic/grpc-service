@@ -17,10 +17,10 @@ service orderMgt on ep {
         error? result = ();
         // Find the requested order from the map.
         if (ordersMap.hasKey(orderId)) {
-            var jsonValue = json.convert(ordersMap[orderId]);
+            var jsonValue = typedesc<json>.constructFrom(ordersMap[orderId]);
             if (jsonValue is error) {
                 // Send casting error as internal error.
-                result = caller->sendError(grpc:INTERNAL, <string>jsonValue.detail().message);
+                result = caller->sendError(grpc:INTERNAL, <string>jsonValue.detail()["message"]);
             } else {
                 json orderDetails = jsonValue;
                 payload = orderDetails.toString();
@@ -36,7 +36,7 @@ service orderMgt on ep {
 
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -53,7 +53,7 @@ service orderMgt on ep {
         result = caller->complete();
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -78,7 +78,7 @@ service orderMgt on ep {
 
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -101,7 +101,7 @@ service orderMgt on ep {
         }
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 }
