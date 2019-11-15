@@ -1,5 +1,4 @@
 import ballerina/grpc;
-import ballerina/io;
 
 public type orderMgtBlockingClient client object {
 
@@ -7,7 +6,7 @@ public type orderMgtBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -19,8 +18,7 @@ public type orderMgtBlockingClient client object {
         }
     }
 
-
-    remote function findOrder(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function findOrder(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         
         var payload = check self.grpcClient->blockingExecute("grpc_service.orderMgt/findOrder", req, headers);
         grpc:Headers resHeaders = new;
@@ -29,7 +27,7 @@ public type orderMgtBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    remote function addOrder(orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function addOrder(orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         
         var payload = check self.grpcClient->blockingExecute("grpc_service.orderMgt/addOrder", req, headers);
         grpc:Headers resHeaders = new;
@@ -38,7 +36,7 @@ public type orderMgtBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    remote function updateOrder(orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function updateOrder(orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         
         var payload = check self.grpcClient->blockingExecute("grpc_service.orderMgt/updateOrder", req, headers);
         grpc:Headers resHeaders = new;
@@ -47,7 +45,7 @@ public type orderMgtBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    remote function cancelOrder(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function cancelOrder(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         
         var payload = check self.grpcClient->blockingExecute("grpc_service.orderMgt/cancelOrder", req, headers);
         grpc:Headers resHeaders = new;
@@ -64,7 +62,7 @@ public type orderMgtClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -76,30 +74,29 @@ public type orderMgtClient client object {
         }
     }
 
-
-    remote function findOrder(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function findOrder(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         
         return self.grpcClient->nonBlockingExecute("grpc_service.orderMgt/findOrder", req, msgListener, headers);
     }
 
-    remote function addOrder(orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function addOrder(orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         
         return self.grpcClient->nonBlockingExecute("grpc_service.orderMgt/addOrder", req, msgListener, headers);
     }
 
-    remote function updateOrder(orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function updateOrder(orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         
         return self.grpcClient->nonBlockingExecute("grpc_service.orderMgt/updateOrder", req, msgListener, headers);
     }
 
-    remote function cancelOrder(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function cancelOrder(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         
         return self.grpcClient->nonBlockingExecute("grpc_service.orderMgt/cancelOrder", req, msgListener, headers);
     }
 
 };
 
-type orderInfo record {|
+public type orderInfo record {|
     string id;
     string name;
     string description;

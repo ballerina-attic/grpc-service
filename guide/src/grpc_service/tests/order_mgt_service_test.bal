@@ -71,7 +71,7 @@ function testFindOrder() {
         string result;
         grpc:Headers resHeaders;
         [result, resHeaders] = findResponse;
-        string expected = "{\"id\":\"100500\", \"name\":\"XYZ\", \"description\":\"Updated order.\"}";
+        string expected = "id=100500 name=XYZ description=Updated order.";
         test:assertEquals(result, expected, msg = "Response mismatch!");
     }
 }
