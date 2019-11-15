@@ -22,7 +22,7 @@ import ballerina/test;
 // Client endpoint configuration
 orderMgtBlockingClient orderMgtBlockingEp = new("http://localhost:9090");
 
-@test:Config
+@test:Config {}
 // Function to test 'addOrder'.
 function testAddOrder() {
     // Create an order
@@ -33,7 +33,7 @@ function testAddOrder() {
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = addResponse;
+        [result, resHeaders] = addResponse;
         string expected = "Status : Order created; OrderID : 100500";
         test:assertEquals(result, expected, msg = "Response mismatch!");
     }
@@ -52,7 +52,7 @@ function testUpdateOrder() {
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = updateResponse;
+        [result, resHeaders] = updateResponse;
         string expected = "Order : '100500' updated.";
         test:assertEquals(result, expected, msg = "Response mismatch!");
     }
@@ -70,7 +70,7 @@ function testFindOrder() {
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = findResponse;
+        [result, resHeaders] = findResponse;
         string expected = "{\"id\":\"100500\", \"name\":\"XYZ\", \"description\":\"Updated order.\"}";
         test:assertEquals(result, expected, msg = "Response mismatch!");
     }
@@ -87,7 +87,7 @@ function testCancelOrder() {
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = cancelResponse;
+        [result, resHeaders] = cancelResponse;
         string expected = "Order : '100500' removed.";
         test:assertEquals(result, expected, msg = "Response mismatch!");
     }

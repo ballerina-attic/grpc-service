@@ -47,7 +47,8 @@ Ballerina is a complete programming language that supports custom project struct
 ```
 grpc-service
   └── guide
-       └── grpc_service     
+       |── src
+       |    └── grpc_service     
        └── orderMgt.proto
 ```
 
@@ -88,10 +89,10 @@ automatically generate a service template and the stub.
 
 - Run the following command to auto-generate the stub and a Ballerina gRPC service template. 
 ```bash
-   $ ballerina grpc --input orderMgt.proto --output grpc_service --mode service
+   $ ballerina grpc --input orderMgt.proto --output src/grpc_service --mode service
 ```
 
-- Now, you should see two new files inside the `guide/grpc_service` directory namely `orderMgt_sample_service.bal`, 
+- Now, you should see two new files inside the `guide/src/grpc_service` directory namely `orderMgt_sample_service.bal`, 
 which is a sample gRPC service and `orderMgt_pb.bal`, which is the gRPC stub.
 
 - Replace the content of the `orderMgt_sample_service.bal` file with the business logic you need. For example, refer to 
@@ -118,10 +119,10 @@ service orderMgt on ep {
         error? result = ();
         // Find the requested order from the map.
         if (ordersMap.hasKey(orderId)) {
-            var jsonValue = json.convert(ordersMap[orderId]);
+            var jsonValue = typedesc<json>.constructFrom(ordersMap[orderId]);
             if (jsonValue is error) {
                 // Send casting error as internal error.
-                result = caller->sendError(grpc:INTERNAL, <string>jsonValue.detail().message);
+                result = caller->sendError(grpc:INTERNAL, <string>jsonValue.detail()["message"]);
             } else {
                 json orderDetails = jsonValue;
                 payload = orderDetails.toString();
@@ -137,7 +138,7 @@ service orderMgt on ep {
 
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -154,7 +155,7 @@ service orderMgt on ep {
         result = caller->complete();
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -179,7 +180,7 @@ service orderMgt on ep {
 
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 
@@ -202,7 +203,7 @@ service orderMgt on ep {
         }
         if (result is error) {
             log:printError("Error from Connector: " + result.reason() + " - "
-                    + <string>result.detail().message + "\n");
+                    + <string>result.detail()["message"] + "\n");
         }
     }
 }
@@ -217,17 +218,17 @@ For simplicity, we use an in-memory map to record all the order details. As show
 You can also write a gRPC client in Ballerina to consume the methods implemented in the gRPC service. You can use 
 the protobuf tool to automatically generate a client template and the client stub.
 
-- Create a new directory using the following command to store the client and client stub files.
+- Create a new directory inside `src` directory using the following command to store the client and client stub files.
 ```bash
    $ mkdir grpc_client 
 ```
 
 - Run the following command to auto-generate the client stub and a Ballerina gRPC client template. 
 ```bash
-   $ ballerina grpc --input orderMgt.proto --output grpc_client --mode client
+   $ ballerina grpc --input orderMgt.proto --output src/grpc_client --mode client
 ```
 
-- Now, you should see two new files inside the `guide/grpc_client` directory namely `orderMgt_sample_client.bal`, 
+- Now, you should see two new files inside the `guide/src/grpc_client` directory namely `orderMgt_sample_client.bal`, 
 which is a sample gRPC client and `orderMgt_pb.bal`, which is the gRPC client stub.
 
 - Replace the content of the `orderMgt_sample_client.bal` file with the business logic you need. For example, refer to 
@@ -249,11 +250,11 @@ public function main(string... args) {
     var addResponse = orderMgtBlockingEp->addOrder(orderReq);
     if (addResponse is error) {
         log:printError("Error from Connector: " + addResponse.reason() + " - "
-                                                + <string>addResponse.detail().message + "\n");
+                                                + <string>addResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = addResponse;
+        [result, resHeaders] = addResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -263,11 +264,11 @@ public function main(string... args) {
     var updateResponse = orderMgtBlockingEp->updateOrder(updateReq);
     if (updateResponse is error) {
         log:printError("Error from Connector: " + updateResponse.reason() + " - "
-                                                + <string>updateResponse.detail().message + "\n");
+                                                + <string>updateResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = updateResponse;
+        [result, resHeaders] = updateResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -276,11 +277,11 @@ public function main(string... args) {
     var findResponse = orderMgtBlockingEp->findOrder("100500");
     if (findResponse is error) {
         log:printError("Error from Connector: " + findResponse.reason() + " - "
-                                                + <string>findResponse.detail().message + "\n");
+                                                + <string>findResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = findResponse;
+        [result, resHeaders] = findResponse;
         log:printInfo("Response - " + result + "\n");
     }
 
@@ -289,11 +290,11 @@ public function main(string... args) {
     var cancelResponse = orderMgtBlockingEp->cancelOrder("100500");
     if (cancelResponse is error) {
         log:printError("Error from Connector: " + cancelResponse.reason() + " - "
-                + <string>cancelResponse.detail().message + "\n");
+                + <string>cancelResponse.detail()["message"] + "\n");
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = cancelResponse;
+        [result, resHeaders] = cancelResponse;
         log:printInfo("Response - " + result + "\n");
     }
 }
@@ -357,24 +358,24 @@ Once you are done with the development, you can dbeploy the gRPC service using a
 
 ### Deploying locally
 
-- As the first step, build a Ballerina executable archive (.balx) of the gRPC service that we developed above. Navigate to `grpc-service/guide` and run the following command. 
+- As the first step, build a Ballerina executable archive (.jar) of the gRPC service that we developed above. Navigate
+ to `grpc-service/guide` and run the following command. 
 
 ```bash
    $ ballerina build grpc_service
 ```
 
-- Once the `grpc_service.balx` is created inside the `target` folder, you can run it using the following command. 
+- Once the `grpc_service-executable.jar` is created inside the `target` folder, you can run it using the following command. 
 
 ```bash
-   $ ballerina run target/grpc_service.balx
+   $ ballerina run target/bin/grpc_service-executable.jar
 ```
 
 - The successful execution of the service prints the following output. 
 ```bash
-   $ ballerina run target/grpc_service.balx 
+   $ ballerina run target/bin/grpc_service-executable.jar
 
-   Initiating service(s) in 'target/grpc_service.balx'
-   [ballerina/grpc] started HTTP/WS endpoint 0.0.0.0:9090
+   [ballerina/grpc] started HTTP/WS listener 0.0.0.0:9090
 ```
 
 ### Deploying on Docker
