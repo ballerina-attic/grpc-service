@@ -97,9 +97,9 @@ public type orderMgtClient client object {
 };
 
 public type orderInfo record {|
-    string id;
-    string name;
-    string description;
+    string id = "";
+    string name = "";
+    string description = "";
     
 |};
 

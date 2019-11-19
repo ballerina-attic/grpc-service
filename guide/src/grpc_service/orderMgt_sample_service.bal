@@ -44,7 +44,7 @@ service orderMgt on ep {
     resource function addOrder(grpc:Caller caller, orderInfo orderReq) {
         // Add the new order to the map.
         string orderId = orderReq.id;
-        ordersMap[orderReq.id] = orderReq;
+        ordersMap[orderReq.id] = <@untained>orderReq;
         // Create response message.
         string payload = "Status : Order created; OrderID : " + orderId;
 
@@ -65,7 +65,7 @@ service orderMgt on ep {
         string orderId = updatedOrder.id;
         if (ordersMap.hasKey(orderId)) {
             // Update the existing order.
-            ordersMap[orderId] = updatedOrder;
+            ordersMap[orderId] = <@untained>updatedOrder;
             payload = "Order : '" + orderId + "' updated.";
             // Send response to the caller.
             result = caller->send(payload);
